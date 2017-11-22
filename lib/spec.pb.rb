@@ -24,6 +24,7 @@ module Gauge
     class ProtoHookFailure < ::ProtocolBuffers::Message; end
     class ProtoSuiteResult < ::ProtocolBuffers::Message; end
     class ProtoSpecResult < ::ProtocolBuffers::Message; end
+    class Error < ::ProtocolBuffers::Message; end
     class ProtoStepValue < ::ProtocolBuffers::Message; end
 
     # enums
@@ -44,8 +45,8 @@ module Gauge
       optional :string, :specHeading, 1
       repeated ::Gauge::Messages::ProtoItem, :items, 2
       optional :bool, :isTableDriven, 3
-      optional ::Gauge::Messages::ProtoHookFailure, :preHookFailure, 4
-      optional ::Gauge::Messages::ProtoHookFailure, :postHookFailure, 5
+      repeated ::Gauge::Messages::ProtoHookFailure, :preHookFailures, 4
+      repeated ::Gauge::Messages::ProtoHookFailure, :postHookFailures, 5
       optional :string, :fileName, 6
       repeated :string, :tags, 7
     end
@@ -240,6 +241,7 @@ module Gauge
       optional :string, :stackTrace, 1
       optional :string, :errorMessage, 2
       optional :bytes, :screenShot, 3
+      optional :int32, :tableRowIndex, 4
     end
 
     class ProtoSuiteResult < ::ProtocolBuffers::Message
@@ -269,8 +271,30 @@ module Gauge
       repeated :int32, :failedDataTableRows, 5
       optional :int64, :executionTime, 6
       optional :bool, :skipped, 7
-      optional :int32, :scenarioSkippedCount, 9
-      repeated :int32, :skippedDataTableRows, 10
+      optional :int32, :scenarioSkippedCount, 8
+      repeated :int32, :skippedDataTableRows, 9
+      repeated ::Gauge::Messages::Error, :errors, 10
+    end
+
+    class Error < ::ProtocolBuffers::Message
+      # forward declarations
+
+      # enums
+      module ErrorType
+        include ::ProtocolBuffers::Enum
+
+        set_fully_qualified_name "gauge.messages.Error.ErrorType"
+
+        PARSE_ERROR = 0
+        VALIDATION_ERROR = 1
+      end
+
+      set_fully_qualified_name "gauge.messages.Error"
+
+      optional ::Gauge::Messages::Error::ErrorType, :type, 1
+      optional :string, :filename, 2
+      optional :int32, :lineNumber, 3
+      optional :string, :message, 4
     end
 
     class ProtoStepValue < ::ProtocolBuffers::Message
